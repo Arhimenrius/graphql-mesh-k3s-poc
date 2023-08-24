@@ -1,0 +1,130 @@
+# to run define K3S_TOKEN, K3S_VERSION is optional, eg:
+#   K3S_TOKEN=${RANDOM}${RANDOM}${RANDOM} docker-compose up
+
+version: '3'
+services:
+
+  server-1:
+    hostname: server-1
+    image: "rancher/k3s:v1.27.4-k3s1"
+    command: server --cluster-init
+    tmpfs:
+    - /run
+    - /var/run
+    ulimits:
+      nproc: 65535
+      nofile:
+        soft: 65535
+        hard: 65535
+    privileged: true
+    environment:
+      - K3S_TOKEN=test_k3s_token
+      - K3S_KUBECONFIG_OUTPUT=/output/kubeconfig.yaml
+      - K3S_KUBECONFIG_MODE=666
+    volumes:
+      - k3s-server-1:/var/lib/rancher/k3s
+      - ./output/server-1:/output
+    # expose:
+    # - 6443
+    ports:
+      - 6443:6443
+      - 80:80      # Ingress controller port 80
+      - 443:443    # Ingress controller port 443
+
+  server-2:
+    hostname: server-2
+    image: "rancher/k3s:v1.27.4-k3s1"
+    command: server
+    tmpfs:
+      - /run
+      - /var/run
+    ulimits:
+      nproc: 65535
+      nofile:
+        soft: 65535
+        hard: 65535
+    privileged: true
+    environment:
+      - K3S_URL=https://server-1:6443
+      - K3S_TOKEN=test_k3s_token
+      - K3S_KUBECONFIG_OUTPUT=/output/kubeconfig.yaml
+      - K3S_KUBECONFIG_MODE=666
+    volumes:
+      - k3s-server-2:/var/lib/rancher/k3s
+      - ./output/server-2:/output
+    expose:
+    - 6443
+    # ports:
+    # - 80:80      # Ingress controller port 80
+    # - 443:443    # Ingress controller port 443
+
+  server-3:
+    hostname: server-3
+    image: "rancher/k3s:v1.27.4-k3s1"
+    command: server
+    tmpfs:
+      - /run
+      - /var/run
+    ulimits:
+      nproc: 65535
+      nofile:
+        soft: 65535
+        hard: 65535
+    privileged: true
+    environment:
+      - K3S_URL=https://server-1:6443
+      - K3S_TOKEN=test_k3s_token
+      - K3S_KUBECONFIG_OUTPUT=/output/kubeconfig.yaml
+      - K3S_KUBECONFIG_MODE=666
+    volumes:
+      - k3s-server-3:/var/lib/rancher/k3s
+      - ./output/server-3:/output
+    expose:
+    - 6443
+    # ports:
+    # - 80:80      # Ingress controller port 80
+    # - 443:443    # Ingress controller port 443
+
+  agent-1:
+    hostname: agent-1
+    image: "rancher/k3s:v1.27.4-k3s1"
+    tmpfs:
+    - /run
+    - /var/run
+    ulimits:
+      nproc: 65535
+      nofile:
+        soft: 65535
+        hard: 65535
+    privileged: true
+    environment:
+    - K3S_URL=https://server-1:6443
+    - K3S_TOKEN=test_k3s_token
+  agent-2:
+    hostname: agent-2
+    image: "rancher/k3s:v1.27.4-k3s1"
+    tmpfs:
+    - /run
+    - /var/run
+    ulimits:
+      nproc: 65535
+      nofile:
+        soft: 65535
+        hard: 65535
+    privileged: true
+    environment:
+    - K3S_URL=https://server-1:6443
+    - K3S_TOKEN=test_k3s_token
+  load-balancer:
+    image: "haproxy:2.8-alpine"
+    volumes:
+      - "./config/loadbalancer/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro"
+    deploy:
+        resources:
+            limits:
+                memory: 500M
+
+volumes:
+  k3s-server-1: {}
+  k3s-server-2: {}
+  k3s-server-3: {}
