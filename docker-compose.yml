@@ -3,7 +3,6 @@
 
 version: '3'
 services:
-
   server-1:
     hostname: server-1
     image: "rancher/k3s:v1.27.4-k3s1"
@@ -24,12 +23,11 @@ services:
     volumes:
       - k3s-server-1:/var/lib/rancher/k3s
       - ./output/server-1:/output
-    # expose:
-    # - 6443
+    expose:
+    - 6443
     ports:
-      - 6443:6443
-      - 80:80      # Ingress controller port 80
-      - 443:443    # Ingress controller port 443
+    - 80:80      # Ingress controller port 80
+    - 443:443    # Ingress controller port 443
 
   server-2:
     hostname: server-2
@@ -123,6 +121,8 @@ services:
         resources:
             limits:
                 memory: 500M
+    ports:
+    - 6443:6443
 
 volumes:
   k3s-server-1: {}
