@@ -98,6 +98,8 @@ services:
     environment:
     - K3S_URL=https://server-1:6443
     - K3S_TOKEN=test_k3s_token
+    volumes:
+      - /kubernetes/agent-1:/local-volume
   agent-2:
     hostname: agent-2
     image: "rancher/k3s:v1.27.4-k3s1"
@@ -113,6 +115,8 @@ services:
     environment:
     - K3S_URL=https://server-1:6443
     - K3S_TOKEN=test_k3s_token
+    volumes:
+      - /kubernetes/agent-2:/local-volume
   load-balancer:
     image: "haproxy:2.8-alpine"
     volumes:

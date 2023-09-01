@@ -45,3 +45,5 @@ for server in "${serversToStart[@]}"
 do
     startServer $server;
 done
+
+kubectl --kubeconfig output/server-1/kubeconfig.yaml apply -k .
