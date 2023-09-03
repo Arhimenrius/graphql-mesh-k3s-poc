@@ -1,6 +1,3 @@
-# to run define K3S_TOKEN, K3S_VERSION is optional, eg:
-#   K3S_TOKEN=${RANDOM}${RANDOM}${RANDOM} docker-compose up
-
 version: '3'
 services:
   server-1:
@@ -20,6 +17,7 @@ services:
       - K3S_TOKEN=test_k3s_token
       - K3S_KUBECONFIG_OUTPUT=/output/kubeconfig.yaml
       - K3S_KUBECONFIG_MODE=666
+      - K3S_DATASTORE_ENDPOINT=http://etcd:2379
     volumes:
       - k3s-server-1:/var/lib/rancher/k3s
       - ./output/server-1:/output
@@ -47,6 +45,7 @@ services:
       - K3S_TOKEN=test_k3s_token
       - K3S_KUBECONFIG_OUTPUT=/output/kubeconfig.yaml
       - K3S_KUBECONFIG_MODE=666
+      - K3S_DATASTORE_ENDPOINT=http://etcd:2379
     volumes:
       - k3s-server-2:/var/lib/rancher/k3s
       - ./output/server-2:/output
@@ -74,6 +73,7 @@ services:
       - K3S_TOKEN=test_k3s_token
       - K3S_KUBECONFIG_OUTPUT=/output/kubeconfig.yaml
       - K3S_KUBECONFIG_MODE=666
+      - K3S_DATASTORE_ENDPOINT=http://etcd:2379
     volumes:
       - k3s-server-3:/var/lib/rancher/k3s
       - ./output/server-3:/output
@@ -127,6 +127,17 @@ services:
                 memory: 500M
     ports:
     - 6443:6443
+  etcd:
+    image: 'bitnami/etcd:latest'
+    environment:
+      - ALLOW_NONE_AUTHENTICATION=yes
+      - ETCD_ADVERTISE_CLIENT_URLS=http://etcd:2379
+    expose:
+      - 2379:2379
+      - 2380:2380
+      - 55366:55366
+    volumes:
+      - ./output/etcd:/var/lib/etcd
 
 volumes:
   k3s-server-1: {}

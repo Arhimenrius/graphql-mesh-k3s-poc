@@ -1,12 +1,12 @@
 #!/bin/bash
 projectName=centralized-graphlq-mesh
-serversToStart=("server-1" "server-2" "server-3" "agent-1" "agent-2")
+nodesToStart=("server-1" "server-2" "server-3" "agent-1" "agent-2")
 
 launchService(){
     docker compose -p $projectName up $1 -d
 }
 
-isServerConnected(){
+isNodeConnected(){
     kubectl --kubeconfig output/server-1/kubeconfig.yaml get nodes | grep "$1" | grep "Ready";
 }
 
@@ -22,28 +22,35 @@ launchLoadBalancer(){
     fi
 }
 
-startServer() {
-    if (isServerConnected $1)
+startNodes() {
+    echo "Check if node $1 is already connected"
+    if (isNodeConnected $1)
     then
+        echo "Node $1 is already connected"
         return;
     fi
+
+    echo "Launching node $1"
     launchService $1
 
     while :
     do
-        if (isServerConnected $1)
+        echo "Check if node $1 is already connected"
+        if (isNodeConnected $1)
         then
             break;
         fi
+        echo "Retry to connect"
         sleep 3;
     done
 }
 
 
+launchService etcd;
 launchLoadBalancer;
-for server in "${serversToStart[@]}"
+for node in "${nodesToStart[@]}"
 do
-    startServer $server;
+    startNodes $node;
 done
 
 kubectl --kubeconfig output/server-1/kubeconfig.yaml apply -k .
