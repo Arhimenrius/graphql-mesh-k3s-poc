@@ -4,22 +4,6 @@ metadata:
   name: local-path-storage
   labels:
     name: poc-cluster
-
----
-
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: local-path-pvc
-  namespace: default
-spec:
-  accessModes:
-    - ReadWriteOnce
-  storageClassName: local-path
-  resources:
-    requests:
-      storage: 2Gi
-      
 ---
 
 kind: ConfigMap

@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: psql-deployment
+  namespace: poc-psql
+  labels:
+    name: poc-psql
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: poc-psql
+  template:
+    metadata:
+      labels:
+        app: poc-psql
+    spec:
+      volumes:
+        - name: psql-storage
+          persistentVolumeClaim:
+            claimName: psql-pvc
+      containers:
+      - name: psql
+        image: postgres:15-alpine
+        imagePullPolicy: Always
+        ports:
+          - name: psql
+            containerPort: 5432
+        volumeMounts:
+          - name: psql-storage
+            mountPath: /var/lib/postgresql/data
+        env:
+          - name: POSTGRES_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: postgres-secret-config
+                key: password
+
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+
+
+
+
