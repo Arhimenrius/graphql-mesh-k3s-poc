@@ -3,7 +3,7 @@ projectName=centralized-graphlq-mesh
 nodesToStart=("server-1" "server-2" "server-3" "agent-1" "agent-2")
 
 launchService(){
-    docker compose -p $projectName up $1 -d
+    docker compose -p $projectName --compatibility up $1 -d
 }
 
 isNodeConnected(){
